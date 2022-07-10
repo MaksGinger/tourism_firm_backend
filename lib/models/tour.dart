@@ -1,10 +1,10 @@
 class Tour {
-  static const String _tourIdKey = 'tour_id';
-  static const String _nameKey = 'name';
-  static const String _startDateKey = 'start_date';
-  static const String _endDateKey = 'end_date';
-  static const String _destinationKey = 'destination';
-  static const String _wayOfTravelingKey = 'way_of_traveling';
+  static const String tourIdKey = 'tour_id';
+  static const String nameKey = 'name';
+  static const String startDateKey = 'start_date';
+  static const String endDateKey = 'end_date';
+  static const String destinationKey = 'destination';
+  static const String wayOfTravelingKey = 'way_of_traveling';
 
   final int tourId;
   final String name;
@@ -23,11 +23,11 @@ class Tour {
   });
 
   factory Tour.fromMap({required Map<String, dynamic> map}) => Tour(
-        tourId: map[_tourIdKey],
-        name: map[_nameKey],
-        startDate: map[_startDateKey],
-        endDate: map[_endDateKey],
-        destination: map[_destinationKey],
-        wayOfTraveling: map[_wayOfTravelingKey],
+        tourId: map[tourIdKey],
+        name: map[nameKey],
+        startDate: map[startDateKey],
+        endDate: map[endDateKey],
+        destination: map[destinationKey],
+        wayOfTraveling: map[wayOfTravelingKey],
       );
 }

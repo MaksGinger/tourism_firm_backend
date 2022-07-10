@@ -6,6 +6,7 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:tourism_firm_backend/database/database_provider.dart';
+import 'package:tourism_firm_backend/database/table.dart';
 
 abstract class Routes {
   static const String root = '/';
@@ -14,16 +15,15 @@ abstract class Routes {
   static const String tourAgents = '/tour_agents';
 }
 
-mixin JsonConverting {
-  final JsonDecoder _decoder = JsonDecoder();
-  final JsonEncoder _encoder = JsonEncoder();
+class Server {
+  static const JsonDecoder _decoder = JsonDecoder();
+  static const JsonEncoder _encoder = JsonEncoder();
 
-  dynamic _decode(Request request) async =>
+  static dynamic _decode(Request request) async =>
       _decoder.convert(await request.readAsString());
-  String _encode(Object? data) => _encoder.convert(data);
-}
 
-class Server with JsonConverting {
+  static String _encode(Object? data) => _encoder.convert(data);
+
   final _router = Router()
     ..get(Routes.root, _rootHandler)
     ..get('/echo/<message>', _echoHandler)
@@ -40,16 +40,28 @@ class Server with JsonConverting {
     return Response.ok('$message\n');
   }
 
-  static Response _toursHandler(Request request) {
-    return Response.ok('tours!');
+  static Future<Response> _toursHandler(Request request) async {
+    return Response.ok(
+      _encode(
+        await DatabaseProvider.selectAll(from: Table.tours),
+      ),
+    );
   }
 
-  static Response _clientsHandler(Request request) {
-    return Response.ok('clients!');
+  static Future<Response> _clientsHandler(Request request) async {
+    return Response.ok(
+      _encode(
+        await DatabaseProvider.selectAll(from: Table.clients),
+      ),
+    );
   }
 
-  static Response _tourAgentsHandler(Request request) {
-    return Response.ok('tour agents!');
+  static Future<Response> _tourAgentsHandler(Request request) async {
+    return Response.ok(
+      _encode(
+        await DatabaseProvider.selectAll(from: Table.tourAgents),
+      ),
+    );
   }
 
   Future<void> _connectToDatabase() async {

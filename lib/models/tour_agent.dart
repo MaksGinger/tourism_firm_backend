@@ -1,9 +1,9 @@
 class TourAgent {
-  static const String _agentIdKey = 'agent_id';
-  static const String _tourIdKey = 'tour_id';
-  static const String _nameKey = 'name';
-  static const String _experienceKey = 'experience';
-  static const String _positionKey = 'position';
+  static const String agentIdKey = 'agent_id';
+  static const String tourIdKey = 'tour_id';
+  static const String nameKey = 'name';
+  static const String experienceKey = 'experience';
+  static const String positionKey = 'position';
 
   final int agentId;
   final int tourId;
@@ -20,10 +20,10 @@ class TourAgent {
   });
 
   factory TourAgent.fromMap({required Map<String, dynamic> map}) => TourAgent(
-        agentId: map[_agentIdKey],
-        tourId: map[_tourIdKey],
-        name: map[_nameKey],
-        experience: map[_experienceKey],
-        position: map[_positionKey],
+        agentId: map[agentIdKey],
+        tourId: map[tourIdKey],
+        name: map[nameKey],
+        experience: map[experienceKey],
+        position: map[positionKey],
       );
 }
