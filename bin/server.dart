@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:dotenv/dotenv.dart' as dotenv;
+import 'package:tourism_firm_backend/database/database_provider.dart';
 
 abstract class Routes {
   static const String root = '/';
@@ -50,9 +52,40 @@ class Server with JsonConverting {
     return Response.ok('tour agents!');
   }
 
+  Future<void> _connectToDatabase() async {
+    if (await File.fromUri(Uri.parse('.env')).exists()) {
+      final filename = '.env';
+
+      final env = dotenv.DotEnv();
+      env.load([filename]);
+
+      final host = env['DB_HOST'];
+      final user = env['DB_USER'];
+      final pass = env['DB_PASS'];
+      final name = env['DB_NAME'];
+      final port = env['DB_PORT'];
+
+      if (host != null &&
+          user != null &&
+          pass != null &&
+          name != null &&
+          port != null) {
+        await DatabaseProvider.init(
+          host: host,
+          user: user,
+          pass: pass,
+          name: name,
+          port: int.parse(port),
+        );
+      }
+    }
+  }
+
   Future<void> start() async {
     // Use any available host or container IP (usually `0.0.0.0`).
     final ip = InternetAddress.anyIPv4;
+
+    await _connectToDatabase();
 
     // Configure a pipeline that logs requests.
     final handler = Pipeline().addMiddleware(logRequests()).addHandler(_router);
