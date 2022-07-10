@@ -12,7 +12,7 @@ abstract class Routes {
   static const String tourAgents = '/tour_agents';
 }
 
-mixin JsonEncodable {
+mixin JsonConverting {
   final JsonDecoder _decoder = JsonDecoder();
   final JsonEncoder _encoder = JsonEncoder();
 
@@ -21,7 +21,7 @@ mixin JsonEncodable {
   String _encode(Object? data) => _encoder.convert(data);
 }
 
-class Server with JsonEncodable {
+class Server with JsonConverting {
   final _router = Router()
     ..get(Routes.root, _rootHandler)
     ..get('/echo/<message>', _echoHandler)
