@@ -26,21 +26,18 @@ class Server {
 
   final _router = Router()
     ..get(Routes.root, _rootHandler)
-    ..get('/echo/<message>', _echoHandler)
-    ..get(Routes.tours, _toursHandler)
-    ..get(Routes.clients, _clientsHandler)
-    ..get(Routes.tourAgents, _tourAgentsHandler);
+    ..get(Routes.tours, _toursGetHandler)
+    ..get(Routes.clients, _clientsGetHandler)
+    ..get(Routes.tourAgents, _tourAgentsGetHandler)
+    ..post(Routes.clients, _clientsPostHadler)
+    ..post(Routes.tourAgents, _tourAgentsPostHadler)
+    ..post(Routes.tours, _toursPostHadler);
 
   static Response _rootHandler(Request request) {
     return Response.ok('Welcome to server!');
   }
 
-  static Response _echoHandler(Request request) {
-    final message = request.params['message'];
-    return Response.ok('$message\n');
-  }
-
-  static Future<Response> _toursHandler(Request request) async {
+  static Future<Response> _toursGetHandler(Request request) async {
     return Response.ok(
       _encode(
         await DatabaseProvider.selectAll(from: Table.tours),
@@ -48,7 +45,7 @@ class Server {
     );
   }
 
-  static Future<Response> _clientsHandler(Request request) async {
+  static Future<Response> _clientsGetHandler(Request request) async {
     return Response.ok(
       _encode(
         await DatabaseProvider.selectAll(from: Table.clients),
@@ -56,12 +53,60 @@ class Server {
     );
   }
 
-  static Future<Response> _tourAgentsHandler(Request request) async {
+  static Future<Response> _tourAgentsGetHandler(Request request) async {
     return Response.ok(
       _encode(
         await DatabaseProvider.selectAll(from: Table.tourAgents),
       ),
     );
+  }
+
+  static Future<Response> _clientsPostHadler(Request request) async {
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.clients,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
+  }
+
+  static Future<Response> _toursPostHadler(Request request) async {
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.tours,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
+  }
+
+  static Future<Response> _tourAgentsPostHadler(Request request) async {
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.tourAgents,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
   Future<void> _connectToDatabase() async {

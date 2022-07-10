@@ -22,7 +22,7 @@ class Database {
     return db;
   }
 
-  Future<List<dynamic>> mappedQuery(
+  Future<List<dynamic>> query(
     String sql, {
     Map<String, dynamic>? values,
   }) async {

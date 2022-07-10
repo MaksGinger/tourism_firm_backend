@@ -5,7 +5,7 @@ class Client {
   static const String hasPaidKey = 'has_paid';
   static const String quantityOfTicketsKey = 'quantity_of_tickets';
 
-  final int clientId;
+  final int? clientId;
   final int tourId;
   final String name;
   final bool hasPaid;
