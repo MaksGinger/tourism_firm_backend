@@ -26,7 +26,6 @@ class Server {
 
   final _router = Router()
     ..get(Routes.root, _rootHandler)
-    ..get('/echo/<message>', _echoHandler)
     ..get(Routes.tours, _toursGetHandler)
     ..get(Routes.clients, _clientsGetHandler)
     ..get(Routes.tourAgents, _tourAgentsGetHandler)
@@ -36,11 +35,6 @@ class Server {
 
   static Response _rootHandler(Request request) {
     return Response.ok('Welcome to server!');
-  }
-
-  static Response _echoHandler(Request request) {
-    final message = request.params['message'];
-    return Response.ok('$message\n');
   }
 
   static Future<Response> _toursGetHandler(Request request) async {
@@ -68,15 +62,51 @@ class Server {
   }
 
   static Future<Response> _clientsPostHadler(Request request) async {
-    return Response.ok('');
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.clients,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
   static Future<Response> _toursPostHadler(Request request) async {
-    return Response.ok('');
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.tours,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
   static Future<Response> _tourAgentsPostHadler(Request request) async {
-    return Response.ok('');
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: Table.tourAgents,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
   Future<void> _connectToDatabase() async {

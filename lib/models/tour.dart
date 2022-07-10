@@ -6,10 +6,10 @@ class Tour {
   static const String destinationKey = 'destination';
   static const String wayOfTravelingKey = 'way_of_traveling';
 
-  final int tourId;
+  final int? tourId;
   final String name;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final String destination;
   final String wayOfTraveling;
 
@@ -25,8 +25,8 @@ class Tour {
   factory Tour.fromMap({required Map<String, dynamic> map}) => Tour(
         tourId: map[tourIdKey],
         name: map[nameKey],
-        startDate: map[startDateKey],
-        endDate: map[endDateKey],
+        startDate: DateTime.tryParse(map[startDateKey]),
+        endDate: DateTime.tryParse(map[endDateKey]),
         destination: map[destinationKey],
         wayOfTraveling: map[wayOfTravelingKey],
       );

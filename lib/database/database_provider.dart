@@ -30,66 +30,146 @@ abstract class DatabaseProvider {
     );
   }
 
-  static Future<List<dynamic>> selectAll({required Table from}) async {
-    final items = <Map<String, dynamic>>[];
+  static Future<List<Map<String, dynamic>>> selectAll(
+      {required Table from}) async {
     final db = _db;
     if (db != null) {
       switch (from) {
         case Table.tours:
-          final result = await db.mappedQuery('''
-          SELECT * FROM $_toursTable
-          ORDER BY ${Tour.tourIdKey} ASC 
-          ''');
-          final formatter = DateFormat('yyyy-MM-dd');
-          for (final row in result) {
-            final item = row[_toursTable];
-            if (item[Tour.startDateKey] is DateTime &&
-                item[Tour.endDateKey] is DateTime) {
-              item[Tour.startDateKey] =
-                  formatter.format(item[Tour.startDateKey]);
-              item[Tour.endDateKey] = formatter.format(item[Tour.endDateKey]);
-            }
-            items.add(row[_toursTable]);
-          }
-          break;
+          return await _selectAllFromTours(db);
         case Table.clients:
-          final result = await db.mappedQuery('''
-          SELECT * FROM $_clientsTable
-          ORDER BY ${Client.clientIdKey} ASC 
-          ''');
-          for (final row in result) {
-            items.add(row[_clientsTable]);
-          }
-          break;
+          return await _selectAllFromClients(db);
         case Table.tourAgents:
-          final result = await db.mappedQuery('''
-          SELECT * FROM $_tourAgentsTable
-          ORDER BY ${TourAgent.agentIdKey} ASC 
-          ''');
-          for (final row in result) {
-            items.add(row[_tourAgentsTable]);
-          }
-          break;
+          return await _selectAllFromTourAgents(db);
       }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> addItem({
+    required Map<String, dynamic> data,
+    required Table to,
+  }) async {
+    final db = _db;
+    if (db != null) {
+      switch (to) {
+        case Table.clients:
+          return await _addItemToClients(data: data, db: db);
+        case Table.tourAgents:
+          return await _addItemToTourAgents(data: data, db: db);
+        case Table.tours:
+          return await _addItemToTours(data: data, db: db);
+      }
+    } else {
+      return {};
+    }
+  }
+
+  static Future<Map<String, dynamic>> _addItemToClients(
+      {required Map<String, dynamic> data, required Database db}) async {
+    final client = Client.fromMap(map: data);
+    const sql = '''
+          insert into $_clientsTable (${Client.tourIdKey},${Client.nameKey},
+        ${Client.hasPaidKey},${Client.quantityOfTicketsKey})
+        VALUES (@${Client.tourIdKey},@${Client.nameKey},
+        @${Client.hasPaidKey},@${Client.quantityOfTicketsKey}) RETURNING ${Client.clientIdKey}
+        ''';
+    final params = <String, dynamic>{
+      Client.tourIdKey: client.tourId,
+      Client.nameKey: client.name,
+      Client.hasPaidKey: client.hasPaid,
+      Client.quantityOfTicketsKey: client.quantityOfTickets,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'inserted_element': result[0][_clientsTable]};
+  }
+
+  static Future<Map<String, dynamic>> _addItemToTourAgents(
+      {required Map<String, dynamic> data, required Database db}) async {
+    final tourAgent = TourAgent.fromMap(map: data);
+    const sql = '''
+          insert into $_tourAgentsTable (${TourAgent.tourIdKey},${TourAgent.nameKey},
+        ${TourAgent.positionKey},${TourAgent.experienceKey})
+        VALUES (@${TourAgent.tourIdKey},@${TourAgent.nameKey},
+        @${TourAgent.positionKey},@${TourAgent.experienceKey}) RETURNING ${TourAgent.agentIdKey}
+        ''';
+    final params = <String, dynamic>{
+      TourAgent.tourIdKey: tourAgent.tourId,
+      TourAgent.nameKey: tourAgent.name,
+      TourAgent.positionKey: tourAgent.position,
+      TourAgent.experienceKey: tourAgent.experience,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'inserted_element': result[0][_tourAgentsTable]};
+  }
+
+  static Future<Map<String, dynamic>> _addItemToTours(
+      {required Map<String, dynamic> data, required Database db}) async {
+    final tour = Tour.fromMap(map: data);
+    const sql = '''
+          insert into $_toursTable (${Tour.nameKey},
+        ${Tour.startDateKey},${Tour.endDateKey},${Tour.destinationKey},${Tour.wayOfTravelingKey})
+        VALUES (@${Tour.nameKey},
+        @${Tour.startDateKey},@${Tour.endDateKey},@${Tour.destinationKey},
+        @${Tour.wayOfTravelingKey}) RETURNING ${Tour.tourIdKey}
+        ''';
+    final params = <String, dynamic>{
+      Tour.nameKey: tour.name,
+      Tour.startDateKey: tour.startDate,
+      Tour.endDateKey: tour.endDate,
+      Tour.destinationKey: tour.destination,
+      Tour.wayOfTravelingKey: tour.wayOfTraveling,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'inserted_element': result[0][_toursTable]};
+  }
+
+  static Future<List<Map<String, dynamic>>> _selectAllFromTourAgents(
+      Database db) async {
+    final items = <Map<String, dynamic>>[];
+    final result = await db.query('''
+          SELECT * FROM $_tourAgentsTable
+    ORDER BY ${TourAgent.agentIdKey} ASC 
+    ''');
+    for (final row in result) {
+      items.add(row[_tourAgentsTable]);
     }
     return items;
   }
 
-  // static Future<Map<String, dynamic>> addItem(dynamic data) async {
-  //   final db = _db;
-  //   if (db != null) {
-  //     final item = Item.fromDynamicMap(data);
-  //     const sql =
-  //         'insert into items (name, description) VALUES (@name, @description) RETURNING id';
-  //     final params = <String, dynamic>{
-  //       'name': item.name,
-  //       'description': item.description
-  //     };
-  //     dynamic result = await db.query(sql, values: params);
+  static Future<List<Map<String, dynamic>>> _selectAllFromClients(
+      Database db) async {
+    final items = <Map<String, dynamic>>[];
+    final result = await db.query('''
+          SELECT * FROM $_clientsTable
+    ORDER BY ${Client.clientIdKey} ASC 
+    ''');
+    for (final row in result) {
+      items.add(row[_clientsTable]);
+    }
+    return items;
+  }
 
-  //     return {'id': result[0]['items']['id']};
-  //   } else {
-  //     return {};
-  //   }
-  // }
+  static Future<List<Map<String, dynamic>>> _selectAllFromTours(
+      Database db) async {
+    final items = <Map<String, dynamic>>[];
+    final result = await db.query('''
+          SELECT * FROM $_toursTable
+    ORDER BY ${Tour.tourIdKey} ASC 
+    ''');
+    final formatter = DateFormat('yyyy-MM-dd');
+    for (final row in result) {
+      final item = row[_toursTable];
+      if (item[Tour.startDateKey] is DateTime &&
+          item[Tour.endDateKey] is DateTime) {
+        item[Tour.startDateKey] = formatter.format(item[Tour.startDateKey]);
+        item[Tour.endDateKey] = formatter.format(item[Tour.endDateKey]);
+      }
+      items.add(row[_toursTable]);
+    }
+    return items;
+  }
 }

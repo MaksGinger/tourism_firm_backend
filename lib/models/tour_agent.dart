@@ -5,7 +5,7 @@ class TourAgent {
   static const String experienceKey = 'experience';
   static const String positionKey = 'position';
 
-  final int agentId;
+  final int? agentId;
   final int tourId;
   final String name;
   final int experience;
