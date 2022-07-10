@@ -1,10 +1,10 @@
 class Tour {
-  static const String _tourIdKey = 'tourId';
+  static const String _tourIdKey = 'tour_id';
   static const String _nameKey = 'name';
-  static const String _startDateKey = 'startDate';
-  static const String _endDateKey = 'endDate';
+  static const String _startDateKey = 'start_date';
+  static const String _endDateKey = 'end_date';
   static const String _destinationKey = 'destination';
-  static const String _wayOfTravelingKey = 'wayOfTraveling';
+  static const String _wayOfTravelingKey = 'way_of_traveling';
 
   final int tourId;
   final String name;

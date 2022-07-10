@@ -1,9 +1,9 @@
 class Client {
-  static const String _clientIdKey = 'clientId';
-  static const String _tourIdKey = 'tourId';
+  static const String _clientIdKey = 'client_id';
+  static const String _tourIdKey = 'tour_id';
   static const String _nameKey = 'name';
-  static const String _hasPaidKey = 'hasPaid';
-  static const String _quantityOfTicketsKey = 'quantityOfTickets';
+  static const String _hasPaidKey = 'has_paid';
+  static const String _quantityOfTicketsKey = 'quantity_of_tickets';
 
   final int clientId;
   final int tourId;

@@ -1,6 +1,6 @@
 class TourAgent {
-  static const String _agentIdKey = 'agentId';
-  static const String _tourIdKey = 'tourId';
+  static const String _agentIdKey = 'agent_id';
+  static const String _tourIdKey = 'tour_id';
   static const String _nameKey = 'name';
   static const String _experienceKey = 'experience';
   static const String _positionKey = 'position';
