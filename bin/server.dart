@@ -39,6 +39,30 @@ class Server {
     return await _getHandler(from: Table.tours);
   }
 
+  static Future<Response> _clientsGetHandler(Request request) async {
+    return await _getHandler(from: Table.clients);
+  }
+
+  static Future<Response> _tourAgentsGetHandler(Request request) async {
+    return await _getHandler(from: Table.tourAgents);
+  }
+
+  static Future<Response> _clientsPostHadler(Request request) async {
+    return await _postHandler(request, to: Table.clients);
+  }
+
+  static Future<Response> _toursPostHadler(Request request) async {
+    return await _postHandler(request, to: Table.tours);
+  }
+
+  static Future<Response> _tourAgentsPostHadler(Request request) async {
+    return await _postHandler(request, to: Table.tourAgents);
+  }
+
+  static Future<Response> _clientsDeleteHandler(Request request) async {
+    return await _deleteHandler(request, from: Table.clients);
+  }
+
   static Future<Response> _getHandler({required Table from}) async {
     return Response.ok(
       _encode(
@@ -47,72 +71,30 @@ class Server {
     );
   }
 
-  static Future<Response> _clientsGetHandler(Request request) async {
-    return await _getHandler(from: Table.clients);
+  static Future<Response> _postHandler(Request request,
+      {required Table to}) async {
+    try {
+      final data = await _decode(request);
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.addItem(
+            data: data,
+            to: to,
+          ),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
-  static Future<Response> _clientsDeleteHandler(Request request) async {
+  static Future<Response> _deleteHandler(Request request,
+      {required Table from}) async {
     try {
       final name = await request.readAsString();
       return Response.ok(
         _encode(
-          await DatabaseProvider.deleteItemBy(name: name, from: Table.clients),
-        ),
-      );
-    } catch (e) {
-      return Response(400);
-    }
-  }
-
-  static Future<Response> _tourAgentsGetHandler(Request request) async {
-    return await _getHandler(from: Table.tourAgents);
-  }
-
-  static Future<Response> _clientsPostHadler(Request request) async {
-    try {
-      final data = await _decode(request);
-      return Response.ok(
-        _encode(
-          await DatabaseProvider.addItem(
-            data: data,
-            to: Table.clients,
-          ),
-        ),
-      );
-    } catch (e) {
-      return Response(400);
-    }
-  }
-
-  static Future<Response> _toursPostHadler(Request request) async {
-    try {
-      final data = await _decode(request);
-      return Response.ok(
-        _encode(
-          await DatabaseProvider.addItem(
-            data: data,
-            to: Table.tours,
-          ),
-        ),
-      );
-    } catch (e) {
-      return Response(400);
-    }
-  }
-
-  static Future<Response> _tourAgentsPostHadler(Request request) async {
-    return await _postHandler(request);
-  }
-
-  static Future<Response> _postHandler(Request request) async {
-    try {
-      final data = await _decode(request);
-      return Response.ok(
-        _encode(
-          await DatabaseProvider.addItem(
-            data: data,
-            to: Table.tourAgents,
-          ),
+          await DatabaseProvider.deleteItemBy(name: name, from: from),
         ),
       );
     } catch (e) {
