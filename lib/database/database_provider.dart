@@ -65,6 +65,26 @@ abstract class DatabaseProvider {
     }
   }
 
+  static Future<Map<String, dynamic>> updateItem({
+    required Map<String, dynamic> data,
+    required int id,
+    required Table of,
+  }) async {
+    final db = _db;
+    if (db != null) {
+      switch (of) {
+        case Table.clients:
+          return await _updateItemOfClients(data: data, id: id, db: db);
+        case Table.tourAgents:
+          return await _updateItemOfTourAgents(data: data, id: id, db: db);
+        case Table.tours:
+          return await _updateItemOfTours(data: data, id: id, db: db);
+      }
+    } else {
+      return {};
+    }
+  }
+
   static Future<Map<String, dynamic>> deleteItemBy({
     required int id,
     required Table from,
@@ -82,6 +102,86 @@ abstract class DatabaseProvider {
     } else {
       return {};
     }
+  }
+
+  static Future<Map<String, dynamic>> _updateItemOfClients({
+    required Map<String, dynamic> data,
+    required int id,
+    required Database db,
+  }) async {
+    final client = Client.fromMap(map: data);
+    final sql = '''
+          UPDATE $_clientsTable SET
+    ${Client.tourIdKey}=@${Client.tourIdKey},
+    ${Client.nameKey}=@${Client.nameKey},
+    ${Client.hasPaidKey}=@${Client.hasPaidKey},
+    ${Client.quantityOfTicketsKey}=@${Client.quantityOfTicketsKey}
+    WHERE ${Client.clientIdKey}=$id
+    RETURNING ${Client.clientIdKey}
+    ''';
+    final params = <String, dynamic>{
+      Client.tourIdKey: client.tourId,
+      Client.nameKey: client.name,
+      Client.hasPaidKey: client.hasPaid,
+      Client.quantityOfTicketsKey: client.quantityOfTickets,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'updated_element': result[0][_clientsTable]};
+  }
+
+  static Future<Map<String, dynamic>> _updateItemOfTours({
+    required Map<String, dynamic> data,
+    required int id,
+    required Database db,
+  }) async {
+    final tour = Tour.fromMap(map: data);
+    final sql = '''
+          UPDATE $_toursTable SET
+        ${Tour.nameKey} = @${Tour.nameKey},
+        ${Tour.startDateKey}=@${Tour.startDateKey},
+        ${Tour.endDateKey}=@${Tour.endDateKey},
+        ${Tour.destinationKey}=@${Tour.destinationKey},
+        ${Tour.wayOfTravelingKey}=@${Tour.wayOfTravelingKey}
+        WHERE ${Tour.tourIdKey}=$id
+         RETURNING ${Tour.tourIdKey}
+        ''';
+    final params = <String, dynamic>{
+      Tour.nameKey: tour.name,
+      Tour.startDateKey: tour.startDate,
+      Tour.endDateKey: tour.endDate,
+      Tour.destinationKey: tour.destination,
+      Tour.wayOfTravelingKey: tour.wayOfTraveling,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'updated_element': result[0][_toursTable]};
+  }
+
+  static Future<Map<String, dynamic>> _updateItemOfTourAgents({
+    required Map<String, dynamic> data,
+    required int id,
+    required Database db,
+  }) async {
+    final tourAgent = TourAgent.fromMap(map: data);
+    final sql = '''
+        UPDATE $_tourAgentsTable SET
+        ${TourAgent.tourIdKey}=@${TourAgent.tourIdKey},
+        ${TourAgent.nameKey}=@${TourAgent.nameKey},
+        ${TourAgent.positionKey}=@${TourAgent.positionKey},
+        ${TourAgent.experienceKey}=@${TourAgent.experienceKey}
+        WHERE ${TourAgent.agentIdKey}=$id
+        RETURNING ${TourAgent.agentIdKey}
+        ''';
+    final params = <String, dynamic>{
+      TourAgent.tourIdKey: tourAgent.tourId,
+      TourAgent.nameKey: tourAgent.name,
+      TourAgent.positionKey: tourAgent.position,
+      TourAgent.experienceKey: tourAgent.experience,
+    };
+    final result = await db.query(sql, values: params);
+
+    return {'updated_element': result[0][_tourAgentsTable]};
   }
 
   static Future<Map<String, dynamic>> _deleteItemFromClients({

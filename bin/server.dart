@@ -29,6 +29,9 @@ class Server {
     ..post(Routes.clients, _clientsPostHadler)
     ..post(Routes.tourAgents, _tourAgentsPostHadler)
     ..post(Routes.tours, _toursPostHadler)
+    ..post('${Routes.clients}/<id>', _clientsPostUpdateHadler)
+    ..post('${Routes.tourAgents}/<id>', _tourAgentsPostUpdateHadler)
+    ..post('${Routes.tours}/<id>', _toursPostUpdateHadler)
     ..delete('${Routes.clients}/<id>', _clientsDeleteHandler)
     ..delete('${Routes.tourAgents}/<id>', _tourAgentsDeleteHandler);
 
@@ -58,6 +61,18 @@ class Server {
 
   static Future<Response> _tourAgentsPostHadler(Request request) async {
     return await _postHandler(request, to: Table.tourAgents);
+  }
+
+  static Future<Response> _clientsPostUpdateHadler(Request request) async {
+    return await _postUpdateHandler(request, of: Table.clients);
+  }
+
+  static Future<Response> _tourAgentsPostUpdateHadler(Request request) async {
+    return await _postUpdateHandler(request, of: Table.tourAgents);
+  }
+
+  static Future<Response> _toursPostUpdateHadler(Request request) async {
+    return await _postUpdateHandler(request, of: Table.tours);
   }
 
   static Future<Response> _clientsDeleteHandler(Request request) async {
@@ -93,20 +108,45 @@ class Server {
     }
   }
 
+  static Future<Response> _postUpdateHandler(Request request,
+      {required Table of}) async {
+    try {
+      final data = await _decode(request);
+      final id = request.params['id'];
+      if (id != null && int.tryParse(id) != null) {
+        return Response.ok(
+          _encode(
+            await DatabaseProvider.updateItem(
+              id: int.parse(id),
+              data: data,
+              of: of,
+            ),
+          ),
+        );
+      } else {
+        return Response(400);
+      }
+    } catch (e) {
+      return Response(400);
+    }
+  }
+
   static Future<Response> _deleteHandler(Request request,
       {required Table from}) async {
     try {
       final id = request.params['id'];
-      if (id != null && int.tryParse(id) != null) {}
-      //final name = await request.readAsString();
-      return Response.ok(
-        _encode(
-          await DatabaseProvider.deleteItemBy(
-            id: int.parse(id!),
-            from: from,
+      if (id != null && int.tryParse(id) != null) {
+        return Response.ok(
+          _encode(
+            await DatabaseProvider.deleteItemBy(
+              id: int.parse(id),
+              from: from,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        return Response(400);
+      }
     } catch (e) {
       return Response(400);
     }
