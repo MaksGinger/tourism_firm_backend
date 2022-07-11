@@ -16,13 +16,10 @@ abstract class Routes {
 }
 
 class Server {
-  static const JsonDecoder _decoder = JsonDecoder();
-  static const JsonEncoder _encoder = JsonEncoder();
-
   static dynamic _decode(Request request) async =>
-      _decoder.convert(await request.readAsString());
+      jsonDecode(await request.readAsString());
 
-  static String _encode(Object? data) => _encoder.convert(data);
+  static String _encode(Object? data) => jsonEncode(data);
 
   final _router = Router()
     ..get(Routes.root, _rootHandler)
