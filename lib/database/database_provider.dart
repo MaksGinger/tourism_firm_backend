@@ -73,21 +73,41 @@ abstract class DatabaseProvider {
     if (db != null) {
       switch (from) {
         case Table.clients:
-          final sql = '''
-          DELETE FROM $_clientsTable WHERE 
-          ${Client.nameKey}='$name'
-          RETURNING ${Client.clientIdKey}
-        ''';
-          final result = await db.query(sql);
-          return {'deleted_element': result[0][_clientsTable]};
+          return await _deleteItemFromClients(name: name, db: db);
         case Table.tourAgents:
-          return {};
+          return await _deleteItemFromTourAgents(name: name, db: db);
         case Table.tours:
           return {};
       }
     } else {
       return {};
     }
+  }
+
+  static Future<Map<String, dynamic>> _deleteItemFromClients({
+    required String name,
+    required Database db,
+  }) async {
+    final sql = '''
+          DELETE FROM $_clientsTable WHERE 
+    ${Client.nameKey}='$name'
+    RETURNING ${Client.clientIdKey}
+            ''';
+    final result = await db.query(sql);
+    return {'deleted_element': result[0][_clientsTable]};
+  }
+
+  static Future<Map<String, dynamic>> _deleteItemFromTourAgents({
+    required String name,
+    required Database db,
+  }) async {
+    final sql = '''
+          DELETE FROM $_tourAgentsTable WHERE 
+    ${TourAgent.nameKey}='$name'
+    RETURNING ${TourAgent.agentIdKey}
+            ''';
+    final result = await db.query(sql);
+    return {'deleted_elements': result};
   }
 
   static Future<Map<String, dynamic>> _addItemToClients({

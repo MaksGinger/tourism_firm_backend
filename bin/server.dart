@@ -29,7 +29,8 @@ class Server {
     ..post(Routes.clients, _clientsPostHadler)
     ..post(Routes.tourAgents, _tourAgentsPostHadler)
     ..post(Routes.tours, _toursPostHadler)
-    ..delete(Routes.clients, _clientsDeleteHandler);
+    ..delete(Routes.clients, _clientsDeleteHandler)
+    ..delete(Routes.tourAgents, _tourAgentsDeleteHandler);
 
   static Response _rootHandler(Request request) {
     return Response.ok('Welcome to server!');
@@ -61,6 +62,10 @@ class Server {
 
   static Future<Response> _clientsDeleteHandler(Request request) async {
     return await _deleteHandler(request, from: Table.clients);
+  }
+
+  static Future<Response> _tourAgentsDeleteHandler(Request request) async {
+    return await _deleteHandler(request, from: Table.tourAgents);
   }
 
   static Future<Response> _getHandler({required Table from}) async {
