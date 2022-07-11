@@ -28,34 +28,44 @@ class Server {
     ..get(Routes.tourAgents, _tourAgentsGetHandler)
     ..post(Routes.clients, _clientsPostHadler)
     ..post(Routes.tourAgents, _tourAgentsPostHadler)
-    ..post(Routes.tours, _toursPostHadler);
+    ..post(Routes.tours, _toursPostHadler)
+    ..delete(Routes.clients, _clientsDeleteHandler);
 
   static Response _rootHandler(Request request) {
     return Response.ok('Welcome to server!');
   }
 
   static Future<Response> _toursGetHandler(Request request) async {
+    return await _getHandler(from: Table.tours);
+  }
+
+  static Future<Response> _getHandler({required Table from}) async {
     return Response.ok(
       _encode(
-        await DatabaseProvider.selectAll(from: Table.tours),
+        await DatabaseProvider.selectAll(from: from),
       ),
     );
   }
 
   static Future<Response> _clientsGetHandler(Request request) async {
-    return Response.ok(
-      _encode(
-        await DatabaseProvider.selectAll(from: Table.clients),
-      ),
-    );
+    return await _getHandler(from: Table.clients);
+  }
+
+  static Future<Response> _clientsDeleteHandler(Request request) async {
+    try {
+      final name = await request.readAsString();
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.deleteItemBy(name: name, from: Table.clients),
+        ),
+      );
+    } catch (e) {
+      return Response(400);
+    }
   }
 
   static Future<Response> _tourAgentsGetHandler(Request request) async {
-    return Response.ok(
-      _encode(
-        await DatabaseProvider.selectAll(from: Table.tourAgents),
-      ),
-    );
+    return await _getHandler(from: Table.tourAgents);
   }
 
   static Future<Response> _clientsPostHadler(Request request) async {
@@ -91,6 +101,10 @@ class Server {
   }
 
   static Future<Response> _tourAgentsPostHadler(Request request) async {
+    return await _postHandler(request);
+  }
+
+  static Future<Response> _postHandler(Request request) async {
     try {
       final data = await _decode(request);
       return Response.ok(
