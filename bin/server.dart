@@ -26,6 +26,8 @@ class Server {
     ..get(Routes.tours, _toursGetHandler)
     ..get(Routes.clients, _clientsGetHandler)
     ..get(Routes.tourAgents, _tourAgentsGetHandler)
+    ..get('${Routes.clients}/<id>', _clientsGetByIdHadler)
+    ..get('${Routes.tourAgents}/<id>', _tourAgentsGetByIdHadler)
     ..post(Routes.clients, _clientsPostHadler)
     ..post(Routes.tourAgents, _tourAgentsPostHadler)
     ..post(Routes.tours, _toursPostHadler)
@@ -49,6 +51,14 @@ class Server {
 
   static Future<Response> _tourAgentsGetHandler(Request request) async {
     return await _getHandler(from: Table.tourAgents);
+  }
+
+  static Future<Response> _clientsGetByIdHadler(Request request) async {
+    return await _getByIdHandler(request, from: Table.clients);
+  }
+
+  static Future<Response> _tourAgentsGetByIdHadler(Request request) async {
+    return await _getByIdHandler(request, from: Table.tourAgents);
   }
 
   static Future<Response> _clientsPostHadler(Request request) async {
@@ -89,6 +99,20 @@ class Server {
         await DatabaseProvider.selectAll(from: from),
       ),
     );
+  }
+
+  static Future<Response> _getByIdHandler(Request request,
+      {required Table from}) async {
+    final id = request.params['id'];
+    if (id != null && int.tryParse(id) != null) {
+      return Response.ok(
+        _encode(
+          await DatabaseProvider.selectByTourId(from: from, id: int.parse(id)),
+        ),
+      );
+    } else {
+      return Response(400);
+    }
   }
 
   static Future<Response> _postHandler(Request request,
