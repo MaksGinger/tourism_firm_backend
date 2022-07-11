@@ -65,8 +65,55 @@ abstract class DatabaseProvider {
     }
   }
 
-  static Future<Map<String, dynamic>> _addItemToClients(
-      {required Map<String, dynamic> data, required Database db}) async {
+  static Future<Map<String, dynamic>> deleteItemBy({
+    required String name,
+    required Table from,
+  }) async {
+    final db = _db;
+    if (db != null) {
+      switch (from) {
+        case Table.clients:
+          return await _deleteItemFromClients(name: name, db: db);
+        case Table.tourAgents:
+          return await _deleteItemFromTourAgents(name: name, db: db);
+        case Table.tours:
+          return {};
+      }
+    } else {
+      return {};
+    }
+  }
+
+  static Future<Map<String, dynamic>> _deleteItemFromClients({
+    required String name,
+    required Database db,
+  }) async {
+    final sql = '''
+          DELETE FROM $_clientsTable WHERE 
+    ${Client.nameKey}='$name'
+    RETURNING ${Client.clientIdKey}
+            ''';
+    final result = await db.query(sql);
+    return {'deleted_element': result[0][_clientsTable]};
+  }
+
+  static Future<Map<String, dynamic>> _deleteItemFromTourAgents({
+    required String name,
+    required Database db,
+  }) async {
+    final sql = '''
+          DELETE FROM $_tourAgentsTable WHERE 
+    ${TourAgent.nameKey}='$name'
+    RETURNING ${TourAgent.agentIdKey}
+            ''';
+    final result = await db.query(sql);
+    return {'deleted_elements': result};
+  }
+
+  static Future<Map<String, dynamic>> _addItemToClients({
+    required Map<String, dynamic> data,
+    required Database db,
+  }) async {
     final client = Client.fromMap(map: data);
     const sql = '''
           insert into $_clientsTable (${Client.tourIdKey},${Client.nameKey},
@@ -85,8 +132,10 @@ abstract class DatabaseProvider {
     return {'inserted_element': result[0][_clientsTable]};
   }
 
-  static Future<Map<String, dynamic>> _addItemToTourAgents(
-      {required Map<String, dynamic> data, required Database db}) async {
+  static Future<Map<String, dynamic>> _addItemToTourAgents({
+    required Map<String, dynamic> data,
+    required Database db,
+  }) async {
     final tourAgent = TourAgent.fromMap(map: data);
     const sql = '''
           insert into $_tourAgentsTable (${TourAgent.tourIdKey},${TourAgent.nameKey},
@@ -105,8 +154,10 @@ abstract class DatabaseProvider {
     return {'inserted_element': result[0][_tourAgentsTable]};
   }
 
-  static Future<Map<String, dynamic>> _addItemToTours(
-      {required Map<String, dynamic> data, required Database db}) async {
+  static Future<Map<String, dynamic>> _addItemToTours({
+    required Map<String, dynamic> data,
+    required Database db,
+  }) async {
     final tour = Tour.fromMap(map: data);
     const sql = '''
           insert into $_toursTable (${Tour.nameKey},
