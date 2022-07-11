@@ -46,6 +46,22 @@ abstract class DatabaseProvider {
     return [];
   }
 
+  static Future<List<Map<String, dynamic>>> selectByTourId(
+      {required Table from, required int id}) async {
+    final db = _db;
+    if (db != null) {
+      switch (from) {
+        case Table.clients:
+          return await _selectByTourIdFromClients(db, id);
+        case Table.tourAgents:
+          return await _selectByTourIdFromTourAgents(db, id);
+        case Table.tours:
+          return [];
+      }
+    }
+    return [];
+  }
+
   static Future<Map<String, dynamic>> addItem({
     required Map<String, dynamic> data,
     required Table to,
@@ -320,6 +336,34 @@ abstract class DatabaseProvider {
         item[Tour.endDateKey] = formatter.format(item[Tour.endDateKey]);
       }
       items.add(row[_toursTable]);
+    }
+    return items;
+  }
+
+  static Future<List<Map<String, dynamic>>> _selectByTourIdFromTourAgents(
+      Database db, int id) async {
+    final items = <Map<String, dynamic>>[];
+    final result = await db.query('''
+          SELECT * FROM $_tourAgentsTable
+          WHERE ${TourAgent.tourIdKey}=$id
+          ORDER BY ${TourAgent.agentIdKey} ASC 
+    ''');
+    for (final row in result) {
+      items.add(row[_tourAgentsTable]);
+    }
+    return items;
+  }
+
+  static Future<List<Map<String, dynamic>>> _selectByTourIdFromClients(
+      Database db, int id) async {
+    final items = <Map<String, dynamic>>[];
+    final result = await db.query('''
+          SELECT * FROM $_clientsTable
+          WHERE ${Client.tourIdKey}=$id
+    ORDER BY ${Client.clientIdKey} ASC 
+    ''');
+    for (final row in result) {
+      items.add(row[_clientsTable]);
     }
     return items;
   }
