@@ -66,16 +66,16 @@ abstract class DatabaseProvider {
   }
 
   static Future<Map<String, dynamic>> deleteItemBy({
-    required String name,
+    required int id,
     required Table from,
   }) async {
     final db = _db;
     if (db != null) {
       switch (from) {
         case Table.clients:
-          return await _deleteItemFromClients(name: name, db: db);
+          return await _deleteItemFromClients(id: id, db: db);
         case Table.tourAgents:
-          return await _deleteItemFromTourAgents(name: name, db: db);
+          return await _deleteItemFromTourAgents(id: id, db: db);
         case Table.tours:
           return {};
       }
@@ -85,12 +85,12 @@ abstract class DatabaseProvider {
   }
 
   static Future<Map<String, dynamic>> _deleteItemFromClients({
-    required String name,
+    required int id,
     required Database db,
   }) async {
     final sql = '''
           DELETE FROM $_clientsTable WHERE 
-    ${Client.nameKey}='$name'
+    ${Client.clientIdKey}='$id'
     RETURNING ${Client.clientIdKey}
             ''';
     final result = await db.query(sql);
@@ -98,16 +98,16 @@ abstract class DatabaseProvider {
   }
 
   static Future<Map<String, dynamic>> _deleteItemFromTourAgents({
-    required String name,
+    required int id,
     required Database db,
   }) async {
     final sql = '''
           DELETE FROM $_tourAgentsTable WHERE 
-    ${TourAgent.nameKey}='$name'
+    ${TourAgent.agentIdKey}='$id'
     RETURNING ${TourAgent.agentIdKey}
             ''';
     final result = await db.query(sql);
-    return {'deleted_elements': result};
+    return {'deleted_element': result[0][_tourAgentsTable]};
   }
 
   static Future<Map<String, dynamic>> _addItemToClients({

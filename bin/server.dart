@@ -29,8 +29,8 @@ class Server {
     ..post(Routes.clients, _clientsPostHadler)
     ..post(Routes.tourAgents, _tourAgentsPostHadler)
     ..post(Routes.tours, _toursPostHadler)
-    ..delete(Routes.clients, _clientsDeleteHandler)
-    ..delete(Routes.tourAgents, _tourAgentsDeleteHandler);
+    ..delete('${Routes.clients}/<id>', _clientsDeleteHandler)
+    ..delete('${Routes.tourAgents}/<id>', _tourAgentsDeleteHandler);
 
   static Response _rootHandler(Request request) {
     return Response.ok('Welcome to server!');
@@ -96,10 +96,15 @@ class Server {
   static Future<Response> _deleteHandler(Request request,
       {required Table from}) async {
     try {
-      final name = await request.readAsString();
+      final id = request.params['id'];
+      if (id != null && int.tryParse(id) != null) {}
+      //final name = await request.readAsString();
       return Response.ok(
         _encode(
-          await DatabaseProvider.deleteItemBy(name: name, from: from),
+          await DatabaseProvider.deleteItemBy(
+            id: int.parse(id!),
+            from: from,
+          ),
         ),
       );
     } catch (e) {
