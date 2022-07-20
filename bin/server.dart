@@ -193,7 +193,8 @@ class Server {
           user != null &&
           pass != null &&
           name != null &&
-          port != null) {
+          port != null &&
+          int.tryParse(port) != null) {
         await DatabaseProvider.init(
           host: host,
           user: user,

@@ -322,12 +322,12 @@ abstract class DatabaseProvider {
 
   static Future<List<Map<String, dynamic>>> _selectAllFromTours(
       Database db) async {
-    final items = <Map<String, dynamic>>[];
     final result = await db.query('''
           SELECT * FROM $_toursTable
     ORDER BY ${Tour.tourIdKey} ASC 
     ''');
     final formatter = DateFormat('yyyy-MM-dd');
+    final items = <Map<String, dynamic>>[];
     for (final row in result) {
       final item = row[_toursTable];
       if (item[Tour.startDateKey] is DateTime &&
@@ -335,7 +335,7 @@ abstract class DatabaseProvider {
         item[Tour.startDateKey] = formatter.format(item[Tour.startDateKey]);
         item[Tour.endDateKey] = formatter.format(item[Tour.endDateKey]);
       }
-      items.add(row[_toursTable]);
+      items.add(item);
     }
     return items;
   }
